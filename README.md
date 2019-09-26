@@ -22,7 +22,7 @@ yarn add fit-img-crop
 ## Usage
 
 ```jsx harmony
-import ImgCrop from 'antd-img-crop';
+import ImgCrop from 'fit-img-crop';
 import { Upload } from 'antd';
 
 const Demo = () => (
