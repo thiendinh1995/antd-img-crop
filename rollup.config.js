@@ -8,7 +8,7 @@ const external = (id) => deps.includes(id) || /antd\/|@babel\/runtime\//.test(id
 const plugins = (isEsm) => [
   babel({
     plugins: [
-      ['import', { libraryName: 'antd', libraryDirectory: isEsm ? 'es' : 'lib', style: 'css' }],
+      ['import', { libraryName: 'antd', libraryDirectory: isEsm ? 'es' : 'lib', style: true }],
       ['@babel/plugin-transform-runtime', { useESModules: isEsm }],
     ],
     runtimeHelpers: true,

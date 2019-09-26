@@ -1,4 +1,4 @@
-# antd-img-crop
+# fit-img-crop
 
 An image cropper for Ant Design [Upload](https://ant.design/components/upload/).
 
@@ -11,12 +11,12 @@ English | [简体中文](./README.zh-CN.md)
 
 ## Demo
 
-[![Edit antd-img-crop](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/antd-img-crop-4qoom5p9x4?fontsize=14)
+[![Edit fit-img-crop](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/antd-img-crop-4qoom5p9x4?fontsize=14)
 
 ## Install
 
 ```sh
-yarn add antd-img-crop
+yarn add fit-img-crop
 ```
 
 ## Usage

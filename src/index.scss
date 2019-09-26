@@ -4,9 +4,20 @@
   .ant-modal {
     .ant-modal-body {
       display: flex;
-      justify-content: center;
-      .ReactCrop__image {
-        max-height: none;
+      justify-content: center;     
+      .content-crop-image {
+        display: flex;
+        flex-direction: column;
+        #switch-crop {
+          display: flex;
+          margin-left: auto;
+          p {
+            padding-right: 8px;
+          }
+        }
+        .ReactCrop__image {
+          max-height: none;
+        }
       }
     }
   }

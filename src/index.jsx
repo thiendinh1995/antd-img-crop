@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment, } from 'react';
 import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
-import { Modal } from 'antd';
+import { Modal, Switch, } from 'antd';
 import LocaleReceiver from 'antd/lib/locale-provider/LocaleReceiver';
 import './index.scss';
 
@@ -32,6 +32,8 @@ class ImgCrop extends Component {
       modalVisible: false,
       src: null,
       crop: {},
+      isCropImage: true,
+      cropInfo: {},
     };
   }
 
@@ -71,6 +73,7 @@ class ImgCrop extends Component {
       },
     };
   };
+
   // 格式化 beforeUpload 属性
   beforeUpload = (file, fileList) => {
     return new Promise((resolve, reject) => {
@@ -103,6 +106,7 @@ class ImgCrop extends Component {
    */
   // 完成添加图片
   onImageLoaded = (image) => {
+    const { isCropImage } = this.state;
     if (this.imageRef !== undefined) return;
 
     this.imageRef = image;
@@ -145,12 +149,24 @@ class ImgCrop extends Component {
       height = cropHeight;
     }
 
-    this.setState({ crop: { unit: 'px', aspect, x, y, width, height } });
+    const crop = {
+      unit: 'px',
+      aspect,
+      x,
+      y,
+      width,
+      height
+    };
+
+    this.setState({ crop: isCropImage ? crop : {} });
+    this.setState({ cropInfo: { unit: 'px', aspect, x, y, width, height } });
     return false;
   };
+
   // 响应裁切变化
   onCropChange = (crop) => {
-    this.setState({ crop });
+    const { isCropImage } = this.state;
+    this.setState({ crop: isCropImage ? crop : {}, cropInfo: crop });
   };
 
   /**
@@ -158,13 +174,14 @@ class ImgCrop extends Component {
    */
   // 点击确定
   onOk = async () => {
-    const { crop } = this.state;
+    const { crop, isCropImage, } = this.state;
     let { x, y, width, height } = crop;
 
-    if (!width || !height) {
+    if ((!width || !height) && isCropImage) {
       this.onClose();
       return;
     }
+
 
     if (this.scale !== undefined) {
       x = x * this.scale;
@@ -181,6 +198,7 @@ class ImgCrop extends Component {
     ctx.drawImage(this.imageRef, x, y, width, height, 0, 0, width, height);
 
     const { name, type, uid } = this.originalFIle;
+
     canvas.toBlob(async (blob) => {
       // 生成新图片
       const croppedFile = new File([blob], name, { type, lastModified: Date.now() });
@@ -198,7 +216,7 @@ class ImgCrop extends Component {
       }
 
       if (typeof response.then !== 'function') {
-        this.resolve(croppedFile);
+        this.resolve(!isCropImage ? this.originalFIle : croppedFile);
         return;
       }
 
@@ -224,14 +242,22 @@ class ImgCrop extends Component {
     });
   };
 
+  // Display crop image
+  onChangeSwitch = (checked) => {
+    const { cropInfo, } = this.state;
+
+    this.setState({ isCropImage: checked });
+    this.setState({ crop: !checked ? {} : cropInfo });
+  }
+
   render() {
-    const { modalTitle, modalWidth, resize, resizeAndDrag } = this.props;
-    const { modalVisible, src, crop } = this.state;
+    const { modalTitle, modalWidth, resize, resizeAndDrag, textCrop, } = this.props;
+    const { modalVisible, src, crop, isCropImage } = this.state;
 
     return (
       <LocaleReceiver>
         {(locale, localeCode) => (
-          <>
+          <Fragment>
             {this.renderUpload()}
             <Modal
               visible={modalVisible}
@@ -243,19 +269,28 @@ class ImgCrop extends Component {
               maskClosable={false}
               destroyOnClose
             >
-              {src && (
-                <ReactCrop
-                  src={src}
-                  crop={crop}
-                  locked={resize === false}
-                  disabled={resizeAndDrag === false}
-                  onImageLoaded={this.onImageLoaded}
-                  onChange={this.onCropChange}
-                  keepSelection
-                />
-              )}
+              <div className="content-crop-image">
+                <div id="switch-crop">
+                  <p>{textCrop}</p>
+                  <Switch
+                    checked={isCropImage}
+                    onChange={this.onChangeSwitch}
+                  />
+                </div>
+                {src && (
+                  <ReactCrop
+                    src={src}
+                    crop={crop}
+                    locked={resize === false}
+                    disabled={resizeAndDrag === false}
+                    onImageLoaded={this.onImageLoaded}
+                    onChange={this.onCropChange}
+                    keepSelection
+                  />
+                )}
+              </div>
             </Modal>
-          </>
+          </Fragment>
         )}
       </LocaleReceiver>
     );
@@ -272,6 +307,7 @@ ImgCrop.propTypes = {
   modalTitle: PropTypes.string,
   modalWidth: PropTypes.number,
   beforeCrop: PropTypes.func,
+  textCrop: PropTypes.string,
 
   children: PropTypes.node,
 };
@@ -285,6 +321,7 @@ ImgCrop.defaultProps = {
 
   modalTitle: MODAL_TITLE,
   modalWidth: 520,
+  textCrop: 'Crop',
 };
 
 export default ImgCrop;
